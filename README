@@ -1,0 +1,13 @@
+================================================================================
+=== Sublime Text 2 Modifications                                             ===
+===                                                                          ===
+=== @author Jeff Arenson                                                     ===
+================================================================================
+
+To use:
+    * Copy the .config folder to your home directory
+    * This should overwrite the "JavaC.sublime-build" file, as well as add a
+      shell script
+    * JavaC will now intelligently compile all of the .java files in the target
+      file's directory, and include all .jar files in the target file's 
+      directory as part of the classpath.
