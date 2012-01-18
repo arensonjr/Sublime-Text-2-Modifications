@@ -4,6 +4,9 @@
 === @author Jeff Arenson                                                     ===
 ================================================================================
 
+NOTE: CURRENTLY FOR LINUX ONLY. All other operating systems, please locate your
+	  .config folder for Sublime Text 2 at your own peril!
+
 To use:
     * Copy the .config folder to your home directory
     * This should overwrite the "JavaC.sublime-build" file, as well as add a
