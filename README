@@ -4,13 +4,20 @@
 === @author Jeff Arenson                                                     ===
 ================================================================================
 
-NOTE: CURRENTLY FOR LINUX ONLY. All other operating systems, please locate your
-	  .config folder for Sublime Text 2 at your own peril!
+NOTE: CURRENTLY FOR UNIX SYSTEMS (LINUX, OSX) ONLY. All other operating systems, 
+	the "javaCompile" script will not work since it requires a bash runtime.
 
 To use:
-    * Copy the .config folder to your home directory
-    * This should overwrite the "JavaC.sublime-build" file, as well as add a
-      shell script
-    * JavaC will now intelligently compile all of the .java files in the target
-      file's directory, and include all .jar files in the target file's 
-      directory as part of the classpath.
+	* Copy the JavaRun.sublime-package file to your 
+	  .config/sublime-text-2/Installed Packages directory. In Linux, this
+	  is in ~/.config/sublime-text-2; in OS X, you need to look in
+	  ~/Library/Application Support/Sublime Text 2/
+	* Quit and restart Sublime Text 2
+	* JavaRun should now be the default compiler option for all Java (.java)
+	  and Habanero Java (.hj) files.
+
+Current Issues:
+	* CANNOT handle command line input (e.g. Scanner(System.in).nextLine() )
+	* Compiling for Habanero Java has to be done multiple times, since it
+	  is not guaranteed to get all the files in the correct order (can only
+	  compile one file at a time)

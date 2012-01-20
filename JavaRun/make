@@ -1,0 +1,9 @@
+#!/bin/sh
+# Create the JavaRun.sublime-package file.
+
+FILES='JavaRun.sublime-build
+javaCompile'
+
+zip -r ../JavaRun.sublime-package $FILES
+rm ~/.config/sublime-text-2/Installed\ Packages/JavaRun.sublime-package
+cp ../JavaRun.sublime-package ~/.config/sublime-text-2/Installed\ Packages/JavaRun.sublime-package
