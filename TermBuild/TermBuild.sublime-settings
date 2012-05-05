@@ -1,0 +1,25 @@
+{
+	// There shall be one of these keys for each supported syntax:
+	"py":
+	{
+		// What should be passed in as options?
+		// i.e. "python [command_line_options...] file"
+		"command_line_options": [],
+
+		// What should be passed in as args? i.e. "python file [args...]"
+		"command_line_args": [],
+
+		// What locations need to be on the path?
+		"path": [ ".", "~" ],
+
+		// Which of these options should be used without a prompt for change?
+		// Putting the name of an option in here will cause the TermBuild
+		// script to use that option without prompting the user to change it
+		// before final execution. Only add options to this list that you are
+		// sure you will NEVER want to change at runtime.
+		"defaults_only": [ "path" ]
+	}
+
+	// etc.
+	// ...
+}
