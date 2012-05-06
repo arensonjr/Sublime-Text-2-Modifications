@@ -1,16 +1,6 @@
-# 1. Parse for input file type
-# 2. Given that, open a build system class that subclasses the generic builder
-#  \-- First, ask for any changes to the path and append to sys.path
-# 3. Parse for command-line opts, build options, etc.
-#  \-- Build system does this
-# 4. Run / invoke
-#  \-- Build system does this (call to subprocess library? Maybe if we want to
-#      pass in stdin data, or pipe stdout to a file?)
-
 import os
 import sys
 import subprocess
-from termbuild_settings import DEBUG
 
 def debug( mesg ):
 	"""
@@ -19,12 +9,18 @@ def debug( mesg ):
 	if DEBUG:
 		print mesg
 
+# Import sublime settings for this module
+from TermBuildSettings import settings
+DEBUG = settings[ 'DEBUG' ]
+debug( "Settings Dictionary: " + str( settings ) )
+
 def getBuilder( filename ):
 	"""
 	Returns an AbstractBuild() instance of the correct concrete implementation
 	for the provided filetype.
 
-	Raises a ValueError on an invalid extension.
+	Returns None on an invalid filetype (or one for which we have no build
+	system).
 	"""
 	# Create the name of the build class we should be looking for
 	fileExtension = filename.split( "." )[ -1 ]
@@ -38,11 +34,12 @@ def getBuilder( filename ):
 		exec( "from " + buildName + " import " + buildName )
 	except ImportError:
 		# raise
-		raise ValueError( "Unknown Filetype: '." + fileExtension + "'" )
+		print "Unknown Filetype: '." + fileExtension + "'"
+		return None
 
 	# If it's not there, we raised an error. If we successfully imported it,
 	# instantiate a version
-	exec( "newBuilder = " + buildName + "( '" + filename + "' )" )
+	exec( "newBuilder = " + buildName + "( '" + filename + "', settings )" )
 	return newBuilder
 
 def setupPath():
@@ -106,9 +103,11 @@ def main( filename ):
 	# Check for a valid extension:
 	if checkFileName( filename ):
 		builder = getBuilder( filename )
-		builder.getIOOpts()
-		builder.buildOpts()
-		builder.execute()
+		if builder != None:
+			builder.getIOOpts()
+			builder.buildOpts()
+			builder.getArgs()
+			builder.execute()
 
 	exitSequence()
 

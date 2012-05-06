@@ -9,14 +9,26 @@ class AbstractBuild:
 	Interface for the build system handlers
 	"""
 
-	def __init__( self, filename ):
+	def __init__( self, filename, settings ):
 		"""
 		Set default values.
 		"""
 		self.stdin = sys.stdin
 		self.stdout = sys.stdout
 		self.filename = filename
+		self.extension = filename.split( '.' )[ -1 ]
+		self.settings = settings
+
+		# Eliminate the file extension
+		self.filenameOnly = "".join( self.filename.split( '.' )[ :-1 ] )
+		# Eliminate the /path/to/
+		self.filenameOnly = self.filenameOnly.split( os.path.sep )[ -1 ]
+
 		debug( "Filename = " + filename )
+		if self.extension in settings:
+			debug( "Found extension in settings" )
+		else:
+			debug( "Extension '" + self.extension + "' not in settings" )
 
 	def execute( self ):
 		"""
@@ -27,8 +39,9 @@ class AbstractBuild:
 		# change the execution method.
 		print "==============================================================\n"
 
-		subprocess.call( self.commandLine(),
-			stdin=self.stdin, stdout=self.stdout )
+		for command in self.commandLines():
+			debug( "Executing: '" + " ".join( command ) + "'" )
+			subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
 
 		# If the user had output piped to a file, be nice and show them anyway
 		if self.stdout != sys.stdout:
@@ -80,3 +93,14 @@ class AbstractBuild:
 		Returns a bash command (list of strings) to run the specified file.
 		"""
 		raise NotImplementedError
+
+	def getArgs( self ):
+		"""
+		Get the arguments to the file we're running (not the options to the
+		runtime environment)
+		"""
+		args = raw_input( "Arguments to your program? [none] " )
+		if args != "":
+			self.args = args.split()
+		else:
+			self.args = []

@@ -1,23 +1,26 @@
 from AbstractBuild import AbstractBuild
 from build_main import debug
 
+import os
+
 class PyBuilder( AbstractBuild ):
 	"""
-	This is just a demo version - it does *not* include full functionality!
+	Build system for .py files. Should be invoked by build_main, not an end
+	user.
 	"""
 
 	def buildOpts( self ):
 		"""
 		TODO
 		"""
-		print "No build options for python implemented yet."
+		print "No build options for python yet."
 		self.opts = []
 		debug( "buildOpts: using " + str( self.opts ) )
 
 	def executable( self ):
 		"""
 		Returns the executable command necessary to run a python file (e.g. 
-		['python'], or 'C:/Python27/python.exe')
+		'python', or 'C:/Python27/python.exe')
 		"""
 		# TODO: Windows support?
 		# ...
@@ -27,10 +30,10 @@ class PyBuilder( AbstractBuild ):
 			# Python should be on the path
 			return "python"
 
-	def commandLine( self ):
+	def commandLines( self ):
 		"""
 		TODO
 		"""
-		commandline = [ 'python' ] + self.opts + [ self.filename ]
-		debug( "commandLine: using " + str( commandline ) )
-		return commandline
+		# There's no compiling for python files, so we only need one command:
+		commandline = [ self.executable() ] + self.opts + [ self.filename ] + self.args
+		return [ commandline ]
