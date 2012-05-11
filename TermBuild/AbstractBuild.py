@@ -39,17 +39,21 @@ class AbstractBuild:
 		# change the execution method.
 		print "==============================================================\n"
 
-		for command in self.commandLines():
-			debug( "Executing: '" + " ".join( command ) + "'" )
-			subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
+		try:
+			for command in self.commandLines():
+				debug( "Executing: '" + " ".join( command ) + "'" )
+				subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
 
-		# If the user had output piped to a file, be nice and show them anyway
-		if self.stdout != sys.stdout:
-			with open( self.stdout.name, "r" ) as f:
-				print f.read()
-		else:
-			# Keep the number of whitespace lines even
-			print ""
+			# If the user had output piped to a file, be nice and show them anyway
+			if self.stdout != sys.stdout:
+				with open( self.stdout.name, "r" ) as f:
+					print f.read()
+			else:
+				# Keep the number of whitespace lines even
+				print ""
+
+		except KeyboardInterrupt as e:
+			print "Execution interrupted:\n" + str( e )
 
 		print "=============================================================="
 

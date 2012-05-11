@@ -14,6 +14,18 @@ from TermBuildSettings import settings
 DEBUG = settings[ 'DEBUG' ]
 debug( "Settings Dictionary: " + str( settings ) )
 
+def getFiletype( filename ):
+	"""
+	Given a filename, determines its filetype. Sometimes this can be as easy as
+	parsing for the extension (e.g. '.py'); other times, it can require some
+	looking (e.g. differentiating between java and junit runtimes)
+	"""
+	# TODO
+	pass
+
+
+	return filename.split( "." )[ -1 ]
+
 def getBuilder( filename ):
 	"""
 	Returns an AbstractBuild() instance of the correct concrete implementation
@@ -23,9 +35,10 @@ def getBuilder( filename ):
 	system).
 	"""
 	# Create the name of the build class we should be looking for
-	fileExtension = filename.split( "." )[ -1 ]
-	debug( "Found extension: '" + fileExtension + "'" )
-	buildName = fileExtension.title() + "Builder"
+	# fileType = filename.split( "." )[ -1 ]
+	# debug( "Found extension: '" + fileType + "'" )
+	fileType = getFiletype( filename )
+	buildName = fileType.title() + "Builder"
 
 	# Look for the correct filename with the correct class
 	debug( "Importing " + buildName + "..." )
@@ -34,7 +47,7 @@ def getBuilder( filename ):
 		exec( "from " + buildName + " import " + buildName )
 	except ImportError:
 		# raise
-		print "Unknown Filetype: '." + fileExtension + "'"
+		print "Unknown Filetype: '" + fileType + "'"
 		return None
 
 	# If it's not there, we raised an error. If we successfully imported it,
