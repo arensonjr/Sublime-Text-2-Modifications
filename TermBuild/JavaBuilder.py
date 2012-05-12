@@ -29,9 +29,6 @@ class JavaBuilder( AbstractBuild ):
 		morePath = raw_input( "Add locations to classpath: [.] " )
 		os.environ[ "CLASSPATH" ] = settings[ "defaults" ][ self.filetype ][ "classpath" ]
 		if morePath != "":
-			# morePath = [ "-cp", ".:" + morePath ]
-			# self.compileOpts.extend( morePath )
-			# self.runOpts.extend( morePath )
 			os.environ[ "CLASSPATH" ] += morePath
 
 		# Files to compile
