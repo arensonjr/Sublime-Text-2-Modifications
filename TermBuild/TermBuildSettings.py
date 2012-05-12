@@ -1,18 +1,36 @@
 settings = {
-	# There shall be one of these keys for each supported syntax:
-	"py":
+	"defaults":
 	{
-		"default":
+		# Any filetype can have 
+		"py":
 		{
-			# Should you use stdin, or a file?
-			"stdin": "stdin",
+			# Use stdin, not a filename
+			# DEFAULT: None
+			"input_file": None,
 
-			# Should you just print to the screen, or also pipe to a file?
-			"stdout": "stdout"
+			# Use stdout, not a filename
+			# DEFAULT: None
+			"output_file": None
+		},
+
+		"java":
+		{
+			# Default classpath (must be a string) - I highly suggest putting
+			# your junit jar on this path!
+			# DEFAULT: '.:'
+			"classpath": ".:"
+		},
+
+		"junit":
+		{
+			# Default classpath (must be a string) - I highly suggest putting
+			# your junit jar on this path!
+			# DEFAULT: '.:'
+			"classpath": ".:/home/arensonjr/files/downloads/linstall/junit-4.10.jar:"
 		}
 	},
 
 	# Overall DEBUG setting for the whole plugin
-	# "DEBUG": True
+	# DEFAULT: False
 	"DEBUG": False
 }

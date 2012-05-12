@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import time
 
 from build_main import debug
 
@@ -19,6 +20,9 @@ class AbstractBuild:
 		self.extension = filename.split( '.' )[ -1 ]
 		self.settings = settings
 
+		# Isolate the filetype from the concrete class name
+		self.filetype = self.__module__.replace( 'Builder', '' ).lower()
+		print "Filetype is: '" + self.filetype + "'"
 		# Eliminate the file extension
 		self.filenameOnly = "".join( self.filename.split( '.' )[ :-1 ] )
 		# Eliminate the /path/to/
@@ -39,21 +43,17 @@ class AbstractBuild:
 		# change the execution method.
 		print "==============================================================\n"
 
-		try:
-			for command in self.commandLines():
-				debug( "Executing: '" + " ".join( command ) + "'" )
-				subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
+		for command in self.commandLines():
+			debug( "Executing: '" + " ".join( command ) + "'" )
+			subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
 
-			# If the user had output piped to a file, be nice and show them anyway
-			if self.stdout != sys.stdout:
-				with open( self.stdout.name, "r" ) as f:
-					print f.read()
-			else:
-				# Keep the number of whitespace lines even
-				print ""
-
-		except KeyboardInterrupt as e:
-			print "Execution interrupted:\n" + str( e )
+		# If the user had output piped to a file, be nice and show them anyway
+		if self.stdout != sys.stdout:
+			with open( self.stdout.name, "r" ) as f:
+				print f.read()
+		else:
+			# Keep the number of whitespace lines even
+			print ""
 
 		print "=============================================================="
 

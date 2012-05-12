@@ -16,7 +16,7 @@ class ExtensionBuilder( AbstractBuild ):
 
 	def buildOpts( self ):
 		"""
-		Should set a list of command-line elements usable by the commandLines()
+		Sets a list of command-line elements usable by the commandLines()
 		method.
 
 		e.g. Java:

@@ -20,11 +20,21 @@ def getFiletype( filename ):
 	parsing for the extension (e.g. '.py'); other times, it can require some
 	looking (e.g. differentiating between java and junit runtimes)
 	"""
-	# TODO
-	pass
+	# Check the basic extension; sometimes this is enough
+	extension = filename.split( "." )[ -1 ]
+	filetype = extension
 
+	# Special cases:
+	if extension == "java":
+		# Check for junit
+		with open( filename, "r" ) as f:
+			for line in f.readlines():
+				if "extends TestCase" in line:
+					filetype = "junit"
+		# Others? (java special cases)
+	# Others? (special cases)
 
-	return filename.split( "." )[ -1 ]
+	return filetype
 
 def getBuilder( filename ):
 	"""
@@ -46,9 +56,7 @@ def getBuilder( filename ):
 		debug( "\t'from " + buildName + " import " + buildName + "'" )
 		exec( "from " + buildName + " import " + buildName )
 	except ImportError:
-		# raise
-		print "Unknown Filetype: '" + fileType + "'"
-		return None
+		raise ValueError( "Unrecognized filetype" )
 
 	# If it's not there, we raised an error. If we successfully imported it,
 	# instantiate a version
@@ -114,13 +122,19 @@ def main( filename ):
 	setupPath()
 
 	# Check for a valid extension:
-	if checkFileName( filename ):
-		builder = getBuilder( filename )
-		if builder != None:
-			builder.getIOOpts()
-			builder.buildOpts()
-			builder.getArgs()
-			builder.execute()
+	try:
+		if checkFileName( filename ):
+			try:
+				builder = getBuilder( filename )
+				builder.getIOOpts()
+				builder.buildOpts()
+				builder.getArgs()
+				builder.execute()
+			except ValueError: 
+				print "Unrecognized filetype: " + getFiletype( filename )
+	except KeyboardInterrupt:
+			time.sleep( 1 ) # Let it print its own error message
+			print "\nExecution interrupted.\n"
 
 	exitSequence()
 

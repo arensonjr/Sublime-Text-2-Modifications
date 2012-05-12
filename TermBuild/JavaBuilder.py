@@ -1,7 +1,8 @@
 from AbstractBuild import AbstractBuild
-from build_main import debug
+from build_main import debug, settings
 
 import os
+import subprocess
 
 class JavaBuilder( AbstractBuild ):
 	"""
@@ -11,18 +12,27 @@ class JavaBuilder( AbstractBuild ):
 
 	def buildOpts( self ):
 		"""
-		TODO
+		Sets a list of command-line elements usable by the commandLines()
+		method.
 		"""
 		self.compileOpts = []
 		self.runOpts = []
 
-		### COMPILE TIME OPTIONS
+		self.setCompileOpts()
+		self.setRunOpts()
+
+	def setCompileOpts( self ):
+		"""
+		Configure the compile-time options (classpath, files, etc.)
+		"""
 		# Classpath
 		morePath = raw_input( "Add locations to classpath: [.] " )
+		os.environ[ "CLASSPATH" ] = settings[ "defaults" ][ self.filetype ][ "classpath" ]
 		if morePath != "":
-			morePath = [ "-cp", ".:" + morePath ]
-			self.compileOpts.extend( morePath )
-			self.runOpts.extend( morePath )
+			# morePath = [ "-cp", ".:" + morePath ]
+			# self.compileOpts.extend( morePath )
+			# self.runOpts.extend( morePath )
+			os.environ[ "CLASSPATH" ] += morePath
 
 		# Files to compile
 		toCompile = raw_input( "Space-separated list to compile in addition to " + self.filenameOnly + " (spacebar for none)? [*.java] " )
@@ -31,9 +41,12 @@ class JavaBuilder( AbstractBuild ):
 			self.toCompile = toCompile.split()
 			self.toCompile.append( self.filenameOnly + ".java" )
 		else:
-			self.toCompile = filter( lambda x: x.endswith( 'java' ), os.listdir( '.' ) )
+			self.toCompile = filter( lambda x: x.endswith( '.java' ), os.listdir( '.' ) )
 
-		### RUN TIME OPTIONS
+	def setRunOpts( self ):
+		"""
+		Configure the run-time options (heap size, etc.)
+		"""
 		# Heap Size
 		maxHeap = raw_input( "Max heap size (e.g. 700M, 1.5G)? [default] " )
 		if maxHeap != "":
