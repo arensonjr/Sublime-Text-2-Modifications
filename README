@@ -4,20 +4,29 @@
 || @author Jeff Arenson                                                       ||
 ================================================================================
 
-NOTE: BOTH PLUGINS CURRENTLY ONLY FUNCTION ON LINUX SYSTEMS. WINDOWS AND MAC
+NOTE: TERMBUILD IS CURRENTLY ONLY FUNCTION ON LINUX SYSTEMS. WINDOWS AND MAC
       SUPPORT COMING WHEN I HAVE TIME.
 
-Installation of either JavaRun or TermBuild:
+Installation of TermBuild:
 	* Locate your Sublime Text 2 config folder:
 		--> On Linux, ~/.config/sublime-text-2/
 		--> On Windows, %APPDATA%\Roaming\Sublime Text 2\
 		--> On Mac, ~/Library/Application Support/Sublime Text 2/
-	* Copy the <JavaRun/TermBuild>.sublime-package file into the
-	  "Installed Packages" subdirectory of the config folder
+	* Copy the TermBuild.sublime-package and Terminal.sublime-package files into
+	  the "Installed Packages" subdirectory of the config folder
 	* Quit and restart Sublime Text 2
+
+Configuration:
+	* Default options can be set in the TermBuildSettings.py file. NOTE: The
+	  only options that are currently checked are default classpaths.
 
 Default implementations:
 	* JavaRun is a build system implemented in the classic Sublime Text 2 way;
 	  Java files should build using JavaRun instead of the default Java.
-	* TermBuild is keybound to Ctrl+Shift+r, and (TODO: Remove the requirement)
-	  requires Will Bond's Sublime Terminal to be installed.
+	* TermBuild is keybound to Ctrl+Shift+r, and opens up a new terminal window
+	  to run your file, prompting you for options as it does so.
+
+IMPORTANT NOTES:
+	* TermBuild is currently only functional in a Linux environment
+	* TermBuild currently has support for only Java/JUnit and Python builds; all
+	  others will have to be created from the ExtensionBuilder.py template
