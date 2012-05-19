@@ -15,7 +15,9 @@ class JunitBuilder( JavaBuilder ):
 		Returns the executable command necessary to run this filetype.
 		"""
 		# TODO: Windows support?
-		#...
+		if "nt" == os.name:
+			# return "junit"
+			raise NotImplementedError( "I don't know where the junit executable is." )
 
 		# Linux / Mac:
 		if "posix" == os.name:

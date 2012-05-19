@@ -1,9 +1,5 @@
-"""
-The template class in this file should help you in writing your own build
-systems. Good luck, enjoy, and thanks for using TermBuild!
-"""
-
 from AbstractBuild import AbstractBuild
+from MakefileBuilder import MakefileBuilder
 from build_main import debug
 
 import os
@@ -13,7 +9,13 @@ class CBuilder( AbstractBuild ):
 	Build system for .c files without a Makefile. Should be invoked by
 	build_main, not an end user.
 	"""
-	self.compilerFlags = []
+	def __init__( self, filename, settings ):
+		"""
+		Set default values
+		"""
+		AbstractBuilt.__init__( self, filename, settings ) # super( filename, settings )
+		self.compilerFlags = []
+		self.toCompile = []
 
 
 	def buildOpts( self ):
@@ -25,20 +27,23 @@ class CBuilder( AbstractBuild ):
 			self.compileOpts = [ "-cp", ".:..:/usr/include" ]
 			self.runOpts = [ "-Xmx2000M" ]
 		"""
-		raise NotImplementedError
+		raise NotImplementedError( "Unfinished. For now, please use a Makefile" )
 
-		# self.outfile = [default] filename - extension
+		# For reference, work from Makefile found in this directory (TEMPORARY).
+
+		# (A) outfile: default = filename - extension
+		# (B) Which files do we compile? For each file:
+			# (1) outfile: default = filename - extension + ".o"
+			# (2) CFLAGS
+			# (3) libraries: -lnsl, -lm, -lrt, etc.
+			# (4) Which files does it need? Headers, object files?
+		# (C) Create a makefile based on what we know?
 
 	def executable( self ):
 		"""
-		Returns the executable command necessary to run this filetype.
-
-		e.g. Python on Windows returns:
-			"C:\\Python27\\python.exe"
+		No executable for C files.
 		"""
-		# For C, everything compiles down to an executable --> no runtime
-		# needed. commandLines() doesn't even call this method.
-		raise NotImplementedError( "You don't need a runtime environment for C" )
+		return self.filename
 
 	def compiler( self ):
 		"""

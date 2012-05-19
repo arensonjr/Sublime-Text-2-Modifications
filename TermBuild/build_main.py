@@ -24,7 +24,8 @@ def getFiletype( filename ):
 	extension = filename.split( "." )[ -1 ]
 	filetype = extension
 
-	# Special cases:
+	### Special cases:
+	# Java
 	if extension == "java":
 		# Check for junit
 		with open( filename, "r" ) as f:
@@ -32,7 +33,16 @@ def getFiletype( filename ):
 				if "extends TestCase" in line:
 					filetype = "junit"
 		# Others? (java special cases)
-	# Others? (special cases)
+
+	# C
+	if extension == "c":
+		# Check for existence of a makefile
+		pathname = os.path.sep.join( filename.split( os.path.sep )[ :-1 ] )
+		if "Makefile" in os.listdir( pathname ):
+			filetype = "makefile"
+		# Others? (c special cases)
+
+	# Others? (languages with special cases)
 
 	return filetype
 
@@ -76,7 +86,7 @@ def setupPath():
 
 	# TODO: Don't know if this works for windows
 	elif "nt" == os.name:
-		sys.path.append( os.environ["HOME"] + "/AppData/Roaming/Sublime\ Text\ 2/Packages/TermBuild " )
+		sys.path.append( "%APPDATA%/Sublime\ Text\ 2/Packages/TermBuild " )
 
 	debug( "sys.path is " + str( sys.path ) )
 
@@ -98,16 +108,20 @@ def exitSequence():
 	times and race through the exit screen), and then prompts for a single
 	[ENTER] keystroke.
 	"""
+	# Clear the existing keypresses:
+
 	# Unix-only import:
 	if "posix" == os.name:
-		# Clear the existing stdin stuff
 		from termios import tcflush, TCIOFLUSH
 		tcflush( sys.stdin, TCIOFLUSH )
 
+	# Windows-only import:
 	elif "nt" == os.name:
-		# ??? TODO
-		pass
+		import msvcrt
+		while msvcrt.kbhit():
+			msvcrt.getch()
 
+	# Actual prompt to exit (which they can't hit ENTER early for!)
 	raw_input( "Press [ENTER] to exit..." )
 
 def main( filename ):
@@ -133,8 +147,10 @@ def main( filename ):
 			except ValueError: 
 				print "Unrecognized filetype: " + getFiletype( filename )
 	except KeyboardInterrupt:
-			time.sleep( 1 ) # Let it print its own error message
-			print "\nExecution interrupted.\n"
+		time.sleep( 1 ) # Let it print its own error message
+		print "\nExecution interrupted.\n"
+	except NotImplementedError as e:
+		print "\n", e
 
 	exitSequence()
 

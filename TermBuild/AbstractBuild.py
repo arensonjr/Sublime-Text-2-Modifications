@@ -22,17 +22,19 @@ class AbstractBuild:
 
 		# Isolate the filetype from the concrete class name
 		self.filetype = self.__module__.replace( 'Builder', '' ).lower()
-		print "Filetype is: '" + self.filetype + "'"
+		debug( "Filetype is: '" + self.filetype + "'" )
 		# Eliminate the file extension
 		self.filenameOnly = "".join( self.filename.split( '.' )[ :-1 ] )
 		# Eliminate the /path/to/
 		self.filenameOnly = self.filenameOnly.split( os.path.sep )[ -1 ]
 
-		debug( "Filename = " + filename )
-		if self.extension in settings:
-			debug( "Found extension in settings" )
+		# Just in case: Get in the correct directory
+		os.chdir( os.path.sep.join( self.filename.split( os.path.sep )[ :-1 ] ) )
+
+		if self.filetype in settings[ "defaults" ]:
+			debug( "Found type '" + self.filetype + "' in defaults" )
 		else:
-			debug( "Extension '" + self.extension + "' not in settings" )
+			debug( "Type '" + self.filetype + "' not in defaults" )
 
 	def execute( self ):
 		"""
@@ -45,7 +47,10 @@ class AbstractBuild:
 
 		for command in self.commandLines():
 			debug( "Executing: '" + " ".join( command ) + "'" )
-			subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
+			try:
+				subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
+			except Error as e:
+				print "Error:", e
 
 		# If the user had output piped to a file, be nice and show them anyway
 		if self.stdout != sys.stdout:

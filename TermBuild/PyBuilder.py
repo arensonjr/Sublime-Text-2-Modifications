@@ -23,7 +23,8 @@ class PyBuilder( AbstractBuild ):
 		'python', or 'C:/Python27/python.exe')
 		"""
 		# TODO: Windows support?
-		# ...
+		if "nt" == os.name:
+			return "C:/Python27/python.exe"
 		
 		# Linux / Mac:
 		if "posix" == os.name:

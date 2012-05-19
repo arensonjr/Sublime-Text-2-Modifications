@@ -1,18 +1,19 @@
-"""
-The template class in this file should help you in writing your own build
-systems. Good luck, enjoy, and thanks for using TermBuild!
-"""
-
 from AbstractBuild import AbstractBuild
 from build_main import debug
 
 import os
 
-class ExtensionBuilder( AbstractBuild ):
+class MakefileBuilder( AbstractBuild ):
 	"""
 	Build system for .<extension> files. Should be invoked by build_main, not an
 	end user.
 	"""
+	def __init__( self, filename, settings ):
+		"""
+		Set default values
+		"""
+		AbstractBuilt.__init__( self, filename, settings ) # super( filename, settings )
+		self.compileOpts = []
 
 	def buildOpts( self ):
 		"""
@@ -23,16 +24,15 @@ class ExtensionBuilder( AbstractBuild ):
 			self.compileOpts = [ "-cp", ".:..:/usr/include" ]
 			self.runOpts = [ "-Xmx2000M" ]
 		"""
-		raise NotImplementedError
+		makeCmd = raw_input( "Command for make? [blank for none] " )
+		if "" != makeCmd:
+			self.compileOpts.append( makeCmd )
 
 	def executable( self ):
 		"""
-		Returns the executable command necessary to run this filetype.
-
-		e.g. Python on Windows returns:
-			"C:\\Python27\\python.exe"
+		No executable for C files.
 		"""
-		raise NotImplementedError
+		return self.filename
 
 	def compiler( self ):
 		"""
@@ -45,7 +45,13 @@ class ExtensionBuilder( AbstractBuild ):
 		e.g. Python:
 			NotImplementedError
 		"""
-		raise NotImplementedError
+		# TODO: Windows support?
+		if "nt" == os.name:
+			raise NotImplementedError( "No windows support for Makefiles yet" )
+
+		# Linux / Mac support:
+		if "posix" == os.name
+			return "make"
 
 	def commandLines( self ):
 		"""
@@ -58,4 +64,7 @@ class ExtensionBuilder( AbstractBuild ):
 				[ <runtime>, <options>, <file> ]
 			]
 		"""
-		raise NotImplementedError
+		lines = []
+		lines.append( [ self.compiler() ] + self.compileOpts )
+		lines.append( [ self.executable() ] + self.args )
+		return lines

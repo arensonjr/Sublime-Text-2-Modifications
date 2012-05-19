@@ -26,10 +26,17 @@ class JavaBuilder( AbstractBuild ):
 		Configure the compile-time options (classpath, files, etc.)
 		"""
 		# Classpath
-		morePath = raw_input( "Add locations to classpath: [.] " )
-		os.environ[ "CLASSPATH" ] = settings[ "defaults" ][ self.filetype ][ "classpath" ]
+		# Windows & Linux have different classpath separators
+		cpsep = ":" if "posix" == os.name else ";"
+		classpath = cpsep.join( settings[ "defaults" ][ self.filetype ][ "classpath" ] )
+		morePath = raw_input( "Add (space-separated) locations to classpath: [" + classpath + "] " )
 		if morePath != "":
-			os.environ[ "CLASSPATH" ] += morePath
+			classpath += cpsep + cpsep.join( morePath.split() )
+		os.environ[ "CLASSPATH" ] = classpath 
+
+
+		# self.compileOpts.extend( [ "-cp", "." ] ) # os.environ[ "CLASSPATH" ] + ":" + os.getcwd() ] )
+		# self.runOpts.extend( [ "-cp", "." ] ) # os.environ[ "CLASSPATH" ] + ":" + os.getcwd() ] )
 
 		# Files to compile
 		toCompile = raw_input( "Space-separated list to compile in addition to " + self.filenameOnly + " (spacebar for none)? [*.java] " )
@@ -57,8 +64,9 @@ class JavaBuilder( AbstractBuild ):
 		Returns the executable command necessary to run a Java file (e.g.
 		'javac', or 'C:/<I dont know>')
 		"""
-		# TODO: Windows support?
-		#...
+		# Windows:
+		if "nt" == os.name:
+			return "java"
 
 		# Linux / Mac:
 		if "posix" == os.name:
@@ -70,7 +78,12 @@ class JavaBuilder( AbstractBuild ):
 		Returns the build command necessary to compile the Java files.
 		"""
 		# TODO: Windows support?
-		# ...
+		if "nt" == os.name:
+			try:
+				os.stat( "C:/Program Files/Java/jdk1.6.0_29/bin/javac.exe" )
+				return "C:/Program Files/Java/jdk1.6.0_29/bin/javac.exe"
+			except:
+				raise NotImplementedError( "I don't know where javac is." )
 
 		# Linux / Mac:
 		if "posix" == os.name:
