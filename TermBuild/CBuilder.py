@@ -9,14 +9,6 @@ class CBuilder( AbstractBuild ):
 	Build system for .c files without a Makefile. Should be invoked by
 	build_main, not an end user.
 	"""
-	def __init__( self, filename, settings ):
-		"""
-		Set default values
-		"""
-		AbstractBuild.__init__( self, filename, settings ) # super( filename, settings )
-		self.compilerFlags = []
-		self.toCompile = []
-
 
 	def buildOpts( self ):
 		"""
@@ -27,6 +19,9 @@ class CBuilder( AbstractBuild ):
 			self.compileOpts = [ "-cp", ".:..:/usr/include" ]
 			self.runOpts = [ "-Xmx2000M" ]
 		"""
+		self.compilerFlags = []
+		self.toCompile = []
+
 		raise NotImplementedError( "Unfinished. For now, please use a Makefile" )
 
 		# For reference, work from Makefile found in this directory (TEMPORARY).

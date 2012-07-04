@@ -1,6 +1,8 @@
 import os
 import sys
 import subprocess
+import time
+import traceback
 
 def debug( mesg ):
 	"""
@@ -158,11 +160,13 @@ def saveOpts( settingsToSave, filename ):
 	with open( settingsFilename, "r" ) as f:
 		fullTxt = f.read()
 
-	if ( filename + ": {" ) in fullTxt:
+	quotedFilename = "\"" + filename + "\": "
+	if ( quotedFilename + "{" ) in fullTxt:
 		# Find its old settings by start & end index
 		bracketCount = 1
-		start = fullTxt.index( filename + ": {" )
-		end = start + len( filename ) + 3 # first char after bracket
+		start = fullTxt.index( quotedFilename + "{" )
+		print "\tFound it at " + str( start )
+		end = start + len( quotedFilename ) + 3 # first char after bracket
 		while bracketCount != 0:
 			if fullTxt[ end ] == "{":
 				bracketCount += 1
@@ -171,15 +175,15 @@ def saveOpts( settingsToSave, filename ):
 			end += 1
 
 		# Generate new settings
-		newSettings = filename + ": " + str( settings )
-		fullTxt = fullTxt[ :start ] + "\n" + newSettings + "\n" + fullTxt[ end: ]
+		newSettings = quotedFilename + str( settingsToSave )
+		fullTxt = fullTxt[ :start ] + newSettings + fullTxt[ end: ]
 
 	else:
 		# Append the old settings onto the end
 		insertAfter = "### File-specific settings\n"
 		insertPos = fullTxt.index( insertAfter ) + len( insertAfter )
 
-		newSettings = "\"" + filename + "\": " + str( settingsToSave )
+		newSettings = quotedFilename + str( settingsToSave )
 		fullTxt = fullTxt[ :insertPos ] + "\t" + newSettings + ",\n" + fullTxt[ insertPos: ]
 
 	with open( settingsFilename, "w") as f:
@@ -219,13 +223,17 @@ def main( argv ):
 					saveOpts( builder.settings, filename )
 
 				builder.execute()
-			except ValueError: 
+			except ValueError as e: 
 				print "Unrecognized filetype: " + getFiletype( filename )
+				debug( "\tError was: \"" + e.message + "\"" )
 	except KeyboardInterrupt:
-		time.sleep( 1 ) # Let it print its own error message
+		time.sleep( 1 ) # Let it print its own error message before we hit the screen
 		print "\nExecution interrupted.\n"
 	except NotImplementedError as e:
 		print "\n", e
+	except Exception as e:
+		print "Something went wrong: \"" + e.message + "\""
+		print traceback.print_exc()
 
 	exitSequence()
 

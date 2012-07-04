@@ -8,13 +8,6 @@ class MakefileBuilder( AbstractBuild ):
 	Build system for .<extension> files. Should be invoked by build_main, not an
 	end user.
 	"""
-	def __init__( self, filename, settings ):
-		"""
-		Set default values
-		"""
-		AbstractBuilt.__init__( self, filename, settings ) # super( filename, settings )
-		self.compileOpts = []
-
 	def buildOpts( self ):
 		"""
 		Sets a list of command-line elements usable by the commandLines()
@@ -24,15 +17,22 @@ class MakefileBuilder( AbstractBuild ):
 			self.compileOpts = [ "-cp", ".:..:/usr/include" ]
 			self.runOpts = [ "-Xmx2000M" ]
 		"""
-		makeCmd = raw_input( "Command for make? [blank for none] " )
-		if "" != makeCmd:
-			self.compileOpts.append( makeCmd )
+		self.compileOpts = []
+
+		if self.noPrompt:
+			if "targets" in self.settings:
+				self.compileOpts.extend( self.settings[ "targets" ] )
+		else: # prompt
+			targets = raw_input( "Space-separated targets for make: [blank for none] " )
+			targets = targets.split()
+			self.compileOpts.extend( targets )
+			self.settings[ "targets" ] = targets
 
 	def executable( self ):
 		"""
 		No executable for C files.
 		"""
-		return self.filename
+		return ".".join( self.filename.split( '.' )[ :-1 ] )
 
 	def compiler( self ):
 		"""
