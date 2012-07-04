@@ -10,7 +10,7 @@ class AbstractBuild:
 	Interface for the build system handlers
 	"""
 
-	def __init__( self, filename, settings ):
+	def __init__( self, filename, settings, noPrompt ):
 		"""
 		Set default values.
 		"""
@@ -19,6 +19,7 @@ class AbstractBuild:
 		self.filename = filename
 		self.extension = filename.split( '.' )[ -1 ]
 		self.settings = settings
+		self.noPrompt = noPrompt
 
 		# Isolate the filetype from the concrete class name
 		self.filetype = self.__module__.replace( 'Builder', '' ).lower()
@@ -30,11 +31,6 @@ class AbstractBuild:
 
 		# Just in case: Get in the correct directory
 		os.chdir( os.path.sep.join( self.filename.split( os.path.sep )[ :-1 ] ) )
-
-		if self.filetype in settings[ "defaults" ]:
-			debug( "Found type '" + self.filetype + "' in defaults" )
-		else:
-			debug( "Type '" + self.filetype + "' not in defaults" )
 
 	def execute( self ):
 		"""
@@ -49,8 +45,9 @@ class AbstractBuild:
 			debug( "Executing: '" + " ".join( command ) + "'" )
 			try:
 				subprocess.call( command, stdin=self.stdin, stdout=self.stdout )
-			except Error as e:
-				print "Error:", e
+			except OSError as e:
+				print "Error during execution:", e
+				print "(Command was '" + " ".join( command ) + "')"
 
 		# If the user had output piped to a file, be nice and show them anyway
 		if self.stdout != sys.stdout:
@@ -76,23 +73,42 @@ class AbstractBuild:
 		Asks the user whether they want to use the default stdin / stdout or
 		whether they want to pipe from / into different files.
 		"""
-		# Get stdin
-		infilename = raw_input( "Input file [blank for stdin]: " )
-		if infilename != "":
-			try:
-				infile = open( infilename, "r" )
-				self.stdin = infile
-			except:
-				print "Could not open " + infilename + ", using stdin."
+		if self.noPrompt:
+			if "input_file" in self.settings:
+				try:
+					infilename = self.settings[ "input_file" ]
+					infile = open( infilename, "r" )
+					self.stdin = infile
+				except:
+					print self.settings[ "input_file" ]
+					print "Could not open " + infilename + ", using stdin."
 
-		# Get stdout
-		outfilename = raw_input( "Output file [blank for stdout]: " )
-		if outfilename != "":
-			try:
-				outfile = open( outfilename, "w" )
-				self.stdout = outfile
-			except:
-				print "Could not open " + outfilename + ", using stdout."
+			if "output_file" in self.settings:
+				try:
+					outfilename = self.settings[ "output_file" ]
+					outfile = open( outfilename, "w" )
+					self.stdout = outfile
+				except:
+					print "Could not open " + outfilename + ", using stdout."
+
+		else: # prompt
+			# Get stdin
+			infilename = raw_input( "Input file [blank for stdin]: " )
+			if infilename != "":
+				try:
+					infile = open( infilename, "r" )
+					self.stdin = infile
+				except:
+					print "Could not open " + infilename + ", using stdin."
+
+			# Get stdout
+			outfilename = raw_input( "Output file [blank for stdout]: " )
+			if outfilename != "":
+				try:
+					outfile = open( outfilename, "w" )
+					self.stdout = outfile
+				except:
+					print "Could not open " + outfilename + ", using stdout."
 
 	def commandLine( self ):
 		"""
@@ -108,8 +124,15 @@ class AbstractBuild:
 		Get the arguments to the file we're running (not the options to the
 		runtime environment)
 		"""
-		args = raw_input( "Arguments to your program? [none] " )
-		if args != "":
-			self.args = args.split()
-		else:
-			self.args = []
+		if self.noPrompt:
+			if "args" in self.settings:
+				self.args = self.settings[ "args" ].split()
+			else:
+				self.args = []
+
+		else: # prompt
+			args = raw_input( "Arguments to your program? [none] " )
+			if args != "":
+				self.args = args.split()
+			else:
+				self.args = []

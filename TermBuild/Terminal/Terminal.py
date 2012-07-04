@@ -113,9 +113,9 @@ class TerminalCommand():
 
             filename = self.window.active_view().file_name()
             if "nt" == os.name:
-                configDir = "%APPDATA%\\Roaming\\Sublime\ Text\ 2"
+                configDir = "%APPDATA%\\Sublime Text 2"
             elif "darwin" == sys.platform:
-                configDir = "$HOME/Library/Application\ Support/Sublime\ Text\ 2"
+                configDir = "$HOME/Library/Application Support/Sublime Text 2"
             else: # Linux
                 configDir = "$HOME/.config/sublime-text-2"
             for i in range( len( args ) ):

@@ -50,7 +50,7 @@ class MakefileBuilder( AbstractBuild ):
 			raise NotImplementedError( "No windows support for Makefiles yet" )
 
 		# Linux / Mac support:
-		if "posix" == os.name
+		if "posix" == os.name:
 			return "make"
 
 	def commandLines( self ):

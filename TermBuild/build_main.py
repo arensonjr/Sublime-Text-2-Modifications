@@ -46,7 +46,7 @@ def getFiletype( filename ):
 
 	return filetype
 
-def getBuilder( filename ):
+def getBuilder( filename, noPrompt ):
 	"""
 	Returns an AbstractBuild() instance of the correct concrete implementation
 	for the provided filetype.
@@ -68,9 +68,27 @@ def getBuilder( filename ):
 	except ImportError:
 		raise ValueError( "Unrecognized filetype" )
 
+	# Look for a file-specific settings file
+	found = False
+	if filename in settings:
+		fileSettings = settings[ filename ]
+		found = True
+	else:
+		fileSettings = {}
+
+	# Extend w/ syntax-specific settings file
+	if fileType in settings:
+		syntaxSettings = settings[ fileType ]
+		found = True
+		for key in syntaxSettings:
+			if key not in fileSettings:
+				fileSettings[ key ] = syntaxSettings[ key ]
+	if found == False:
+		raise ValueError( "Don't have any valid settings for " + filename )
+
 	# If it's not there, we raised an error. If we successfully imported it,
 	# instantiate a version
-	exec( "newBuilder = " + buildName + "( '" + filename + "', settings )" )
+	exec( "newBuilder = " + buildName + "( '" + filename + "', fileSettings, noPrompt )" )
 	return newBuilder
 
 def setupPath():
@@ -79,14 +97,16 @@ def setupPath():
 	path.
 	"""
 	if "posix" == os.name:
-		sys.path.append( os.environ["HOME"] + "/.config/sublime-text-2/Packages/TermBuild" )
+		settings[ "PACKAGE_DIR" ] = os.environ["HOME"] + "/.config/sublime-text-2/Packages/TermBuild"
+		sys.path.append( settings[ "PACKAGE_DIR" ] )
 
 		# Development purposes:
-		sys.path.append( os.environ["HOME"] + "/programming/github-Sublime/TermBuild" )
+		# sys.path.append( os.environ["HOME"] + "/programming/github-Sublime/TermBuild" )
 
 	# TODO: Don't know if this works for windows
 	elif "nt" == os.name:
-		sys.path.append( "%APPDATA%/Sublime\ Text\ 2/Packages/TermBuild " )
+		settings[ "PACKAGE_DIR" ] = "%APPDATA%/Sublime\ Text\ 2/Packages/TermBuild"
+		sys.path.append( settings[ "PACKAGE_DIR" ] )
 
 	debug( "sys.path is " + str( sys.path ) )
 
@@ -124,7 +144,49 @@ def exitSequence():
 	# Actual prompt to exit (which they can't hit ENTER early for!)
 	raw_input( "Press [ENTER] to exit..." )
 
-def main( filename ):
+def saveOpts( settingsToSave, filename ):
+	"""
+	Saves a settings dictionary to our settings file, so that it's present the
+	next time they want to run this file.
+	"""
+	# Should we save?
+	yesOrNo = raw_input( "Would you like to save your settings for later? [Y|n] " )
+	if yesOrNo.strip().lower() in [ "n", "no" ]:
+		return
+
+	settingsFilename = settings[ "PACKAGE_DIR" ] + os.path.sep + "TermBuildSettings.py"
+	with open( settingsFilename, "r" ) as f:
+		fullTxt = f.read()
+
+	if ( filename + ": {" ) in fullTxt:
+		# Find its old settings by start & end index
+		bracketCount = 1
+		start = fullTxt.index( filename + ": {" )
+		end = start + len( filename ) + 3 # first char after bracket
+		while bracketCount != 0:
+			if fullTxt[ end ] == "{":
+				bracketCount += 1
+			if fullTxt[ end ] == "}":
+				bracketCount -= 1
+			end += 1
+
+		# Generate new settings
+		newSettings = filename + ": " + str( settings )
+		fullTxt = fullTxt[ :start ] + "\n" + newSettings + "\n" + fullTxt[ end: ]
+
+	else:
+		# Append the old settings onto the end
+		insertAfter = "### File-specific settings\n"
+		insertPos = fullTxt.index( insertAfter ) + len( insertAfter )
+
+		newSettings = "\"" + filename + "\": " + str( settingsToSave )
+		fullTxt = fullTxt[ :insertPos ] + "\t" + newSettings + ",\n" + fullTxt[ insertPos: ]
+
+	with open( settingsFilename, "w") as f:
+		f.write( fullTxt )
+
+
+def main( argv ):
 	"""
 	Builds and executes whatever source file we are passed in on the command
 	line.
@@ -132,6 +194,14 @@ def main( filename ):
 	Raises an exception if we do not have logic in place to deal with the
 	provided file type.
 	"""
+	# Extract the filename
+	if argv[ 1 ] == "--noprompt":
+		noPrompt = True
+		filename = argv[ 2 ]
+	else:
+		noPrompt = False
+		filename = argv[ 1 ]
+
 	# Add the Sublime packages folder we need onto our path
 	setupPath()
 
@@ -139,10 +209,15 @@ def main( filename ):
 	try:
 		if checkFileName( filename ):
 			try:
-				builder = getBuilder( filename )
+				builder = getBuilder( filename, noPrompt )
 				builder.getIOOpts()
 				builder.buildOpts()
 				builder.getArgs()
+
+				# If we've prompted for options, save them now
+				if not noPrompt:
+					saveOpts( builder.settings, filename )
+
 				builder.execute()
 			except ValueError: 
 				print "Unrecognized filetype: " + getFiletype( filename )
@@ -156,4 +231,4 @@ def main( filename ):
 
 
 if __name__ == "__main__":
-	main( sys.argv[ 1 ] )
+	main( sys.argv )

@@ -1,5 +1,5 @@
 from AbstractBuild import AbstractBuild
-from build_main import debug, settings
+from build_main import debug
 
 import os
 import subprocess
@@ -25,39 +25,64 @@ class JavaBuilder( AbstractBuild ):
 		"""
 		Configure the compile-time options (classpath, files, etc.)
 		"""
-		# Classpath
-		# Windows & Linux have different classpath separators
+		# Classpath config
 		cpsep = ":" if "posix" == os.name else ";"
-		classpath = cpsep.join( settings[ "defaults" ][ self.filetype ][ "classpath" ] )
-		morePath = raw_input( "Add (space-separated) locations to classpath: [" + classpath + "] " )
-		if morePath != "":
-			classpath += cpsep + cpsep.join( morePath.split() )
-		os.environ[ "CLASSPATH" ] = classpath 
-
-
-		# self.compileOpts.extend( [ "-cp", "." ] ) # os.environ[ "CLASSPATH" ] + ":" + os.getcwd() ] )
-		# self.runOpts.extend( [ "-cp", "." ] ) # os.environ[ "CLASSPATH" ] + ":" + os.getcwd() ] )
-
-		# Files to compile
-		toCompile = raw_input( "Space-separated list to compile in addition to " + self.filenameOnly + " (spacebar for none)? [*.java] " )
-		if toCompile != "":
-			# Only the files they ask for
-			self.toCompile = toCompile.split()
-			self.toCompile.append( self.filenameOnly + ".java" )
+		if "classpath" in self.settings:
+			classpath = cpsep.join( self.settings[ "classpath" ] )
 		else:
-			self.toCompile = filter( lambda x: x.endswith( '.java' ), os.listdir( '.' ) )
+			classpath = "."
+
+		if self.noPrompt:
+			# Classpath is already done
+			# Files to compile
+			if "toCompile" in self.settings:
+				self.toCompile = self.settings[ "toCompile" ]
+				if "*.java" in self.toCompile:
+					self.toCompile.remove( "*.java" )
+					self.toCompile.extend( filter( lambda x: x.endswith( '.java' ), os.listdir( '.' ) ) ) # TODO: MAKE THIS RECURSIVELY SEARCH DIRS
+				self.toCompile.append( self.filenameOnly + ".java" )
+			else:
+				self.toCompile = filter( lambda x: x.endswith( '.java' ), os.listdir( '.' ) ) # TODO: MAKE THIS RECURSIVELY SEARCH DIRS
+
+		else: # prompt
+			# Classpath
+			morePath = raw_input( "Space-separated classpath: " )
+			if morePath != "":
+				classpath += cpsep + cpsep.join( morePath.split() )
+				self.settings[ "classpath" ] = classpath.split( cpsep )
+
+			# Files to compile
+			toCompile = raw_input( "Space-separated list to compile in addition to " + self.filenameOnly + " (spacebar for none)? [*.java] " )
+			if toCompile != "":
+				# Only the files they ask for
+				self.toCompile = toCompile.split()
+				if "*.java" in self.toCompile:
+					self.toCompile.remove( "*.java" )
+					self.toCompile.extend( filter( lambda x: x.endswith( '.java' ), os.listdir( '.' ) ) ) # TODO: MAKE THIS RECURSIVELY SEARCH DIRS
+				self.toCompile.append( self.filenameOnly + ".java" )
+			else:
+				self.toCompile = filter( lambda x: x.endswith( '.java' ), os.listdir( '.' ) )
+			self.settings[ "toCompile" ] = self.toCompile
+
+		os.environ[ "CLASSPATH" ] = classpath
 
 	def setRunOpts( self ):
 		"""
 		Configure the run-time options (heap size, etc.)
 		"""
-		# Heap Size
-		maxHeap = raw_input( "Max heap size (e.g. 700M, 1.5G)? [default] " )
-		if maxHeap != "":
-			self.runOpts.append( "-Xmx" + maxHeap )
-		minHeap = raw_input( "Min heap size (e.g. 700M, 1.5G)? [default] " )
-		if minHeap != "":
-			self.runOpts.append( "-Xms" + minHeap )
+		if self.noPrompt:
+			# Heap Size
+			if "heapSize" in self.settings:
+				heapSize = self.settings[ "heapSize" ]
+				self.runOpts.extend( [ "-Xms" + heapSize, "-Xmx" + heapSize ] )
+
+		else: # prompt
+			# Heap Size
+			heapSize = raw_input( "Heap size (e.g. 700M, 1.5G): [default] " )
+			if heapSize != "":
+				self.runOpts.append( "-Xmx" + heapSize )
+				self.runOpts.append( "-Xms" + heapSize )
+				self.settings[ "heapSize" ] = heapSize
 
 	def executable( self ):
 		"""

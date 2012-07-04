@@ -1,10 +1,4 @@
 [
 	{ "keys": ["ctrl+alt+t"], "command": "open_terminal" },
-	{ "keys": ["ctrl+shift+alt+t"], "command": "open_terminal_project_folder" },
-
-	{ "keys": ["ctrl+shift+r"], "command": "open_terminal", "args":
-		{
-			"parameters": [ "-e", "bash -c 'python $config/Packages/TermBuild/build_main.py $file'"]
-		}
-	}
+	{ "keys": ["ctrl+shift+alt+t"], "command": "open_terminal_project_folder" }
 ]

@@ -13,7 +13,7 @@ class CBuilder( AbstractBuild ):
 		"""
 		Set default values
 		"""
-		AbstractBuilt.__init__( self, filename, settings ) # super( filename, settings )
+		AbstractBuild.__init__( self, filename, settings ) # super( filename, settings )
 		self.compilerFlags = []
 		self.toCompile = []
 

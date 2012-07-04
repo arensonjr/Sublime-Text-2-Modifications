@@ -13,7 +13,7 @@ class PyBuilder( AbstractBuild ):
 		"""
 		TODO
 		"""
-		print "No build options for python yet."
+		print "TODO: No build options for python yet."
 		self.opts = []
 		debug( "buildOpts: using " + str( self.opts ) )
 
