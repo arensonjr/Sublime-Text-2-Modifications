@@ -32,7 +32,7 @@ def getFiletype( filename ):
 		# Check for junit
 		with open( filename, "r" ) as f:
 			for line in f.readlines():
-				if "extends TestCase" in line:
+				if "extends TestCase" in line or "@Test" in line:
 					filetype = "junit"
 		# Others? (java special cases)
 
