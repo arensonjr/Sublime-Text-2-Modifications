@@ -43,5 +43,5 @@ settings = {
 	### File-specific settings
 
 	# Overall DEBUG setting for the whole plugin
-	"DEBUG": True
+	"DEBUG": False
 }
