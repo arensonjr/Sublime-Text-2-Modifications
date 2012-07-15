@@ -40,7 +40,13 @@ settings = {
 		# "targets": []
 	},
 
+	"hs":
+	{
+		# TODO
+	},
+
 	### File-specific settings
+	"/home/arensonjr/programming/C/ncurses/samplecurses.c": {'targets': ['clean', 'all']},
 
 	# Overall DEBUG setting for the whole plugin
 	"DEBUG": False
