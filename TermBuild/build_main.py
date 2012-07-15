@@ -11,11 +11,6 @@ def debug( mesg ):
 	if DEBUG:
 		print mesg
 
-# Import sublime settings for this module
-from TermBuildSettings import settings
-DEBUG = settings[ 'DEBUG' ]
-debug( "Settings Dictionary: " + str( settings ) )
-
 def getFiletype( filename ):
 	"""
 	Given a filename, determines its filetype. Sometimes this can be as easy as
@@ -124,7 +119,7 @@ def checkFileName( filename ):
 		print "Build Error: Could not find file '" + filename + "'"
 		return False
 
-def exitSequence():
+def exitSequence( status=0 ):
 	"""
 	Clears stdin (so that the user doesn't accidentally hit [ENTER] one too many
 	times and race through the exit screen), and then prompts for a single
@@ -145,6 +140,7 @@ def exitSequence():
 
 	# Actual prompt to exit (which they can't hit ENTER early for!)
 	raw_input( "Press [ENTER] to exit..." )
+	sys.exit( status )
 
 def saveOpts( settingsToSave, filename ):
 	"""
@@ -237,6 +233,15 @@ def main( argv ):
 
 	exitSequence()
 
+# Import sublime settings for this module
+try:
+	from TermBuildSettings import settings
+	DEBUG = settings[ 'DEBUG' ]
+	debug( "Settings Dictionary: " + str( settings ) )
+except Exception as e:
+	print "Settings file has bad syntax:"
+	traceback.print_exc( e )
+	exitSequence( 0 )
 
 if __name__ == "__main__":
 	main( sys.argv )
