@@ -161,12 +161,13 @@ def saveOpts( settingsToSave, filename ):
 		# Find its old settings by start & end index
 		bracketCount = 1
 		start = fullTxt.index( quotedFilename + "{" )
-		end = start + len( quotedFilename ) + 3 # first char after bracket
+		end = start + len( quotedFilename ) + 1 # first char after bracket
 		while bracketCount != 0:
 			if fullTxt[ end ] == "{":
 				bracketCount += 1
 			if fullTxt[ end ] == "}":
 				bracketCount -= 1
+				print "Found close bracket at " + str( end ) + ", count = " + str( bracketCount )
 			end += 1
 
 		# Generate new settings
