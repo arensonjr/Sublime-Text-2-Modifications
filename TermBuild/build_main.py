@@ -161,7 +161,6 @@ def saveOpts( settingsToSave, filename ):
 		# Find its old settings by start & end index
 		bracketCount = 1
 		start = fullTxt.index( quotedFilename + "{" )
-		print "\tFound it at " + str( start )
 		end = start + len( quotedFilename ) + 3 # first char after bracket
 		while bracketCount != 0:
 			if fullTxt[ end ] == "{":
